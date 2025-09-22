@@ -3,6 +3,8 @@
 #include <LiquidCrystal.h>
 
 #define SERVO_PIN 9
+#define CURRENT_SENSOR_PIN A0
+
 #define HUMIDITY_PIN 10
 #define HUMIDITY_SENSOR_TYPE DHT11
 //LCD PINS
@@ -21,12 +23,18 @@
 #define IN2 7
 #define IN3 8
 #define IN4 11
+#define PIN_LED_RED 
+#define PIN_LED_GREEN
+#define PIN_LED_BLUE
 
 Servo humidityServo;
 DHT dht(HUMIDITY_PIN, HUMIDITY_SENSOR_TYPE);
 LiquidCrystal lcd(LCD_RS, LCD_E, LCD_D4, LCD_D5, LCD_D6, LCD_D7);
 int servoPos;
 int servoDelay = 10;
+const float currentSens = 0.185;  // 5A
+const int adcRes; // resoution of anagogue digital converter
+const float vcc = 5.0; //operating voltage
 
 void setup() {
   // put your setup code here, to run once:
@@ -47,6 +55,17 @@ void loop() {
   lcd.setCursor(0, 1);
   // print the number of seconds since reset:
   lcd.print(millis() / 1000);
+}
+
+// reads peltier current using ACS712 sensor
+float  ReadCurrentSensor(int nSamples) {
+  float val = 0;
+  for (int i = 0; i < nSamples;; i++) {
+    val += analogRead(CURRENT_SENSOR_PIN);
+    delay(1);
+  }
+  val = val / adcRes / nSamples;
+  return (vcc / 2 - v * val) / currentSens;
 }
 
 void ReadDHTSensor() {
