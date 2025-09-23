@@ -2,30 +2,23 @@
 #include "DHT.h"
 #include <LiquidCrystal.h>
 
-#define SERVO_PIN 9
+#define FAN_ENABLE_PWM 2
+#define PELTIER_PWM_BURNING 3
+#define PELTIER_PWM_FREEZING 4
+#define SERVO_PIN 5
+#define LED_R 6
+#define LED_G 7
+#define LED_B 8
 #define CURRENT_SENSOR_PIN A0
-
 #define HUMIDITY_PIN 10
 #define HUMIDITY_SENSOR_TYPE DHT11
 //LCD PINS
-#define LCD_RS 12
-#define LCD_E 13
-#define LCD_D4 5
-#define LCD_D5 4
-#define LCD_D6 3
-#define LCD_D7 2
-// LCD_RW, LCD_VSS GND
-// LCD_VCC 5V
-// LCD LED+ 5V THROUGH 220 OHM RESISTOR
-// LCD LED- TO GND
-// MOTOR CONTROLLER L298N
-#define IN1 6
-#define IN2 7
-#define IN3 8
-#define IN4 11
-#define PIN_LED_RED 
-#define PIN_LED_GREEN
-#define PIN_LED_BLUE
+#define LCD_RS 27
+#define LCD_E 26
+#define LCD_D4 25
+#define LCD_D5 24
+#define LCD_D6 23
+#define LCD_D7 22
 
 Servo humidityServo;
 DHT dht(HUMIDITY_PIN, HUMIDITY_SENSOR_TYPE);
