@@ -37,26 +37,31 @@ const float vcc = 5.0; //operating voltage
 //enum LCD_Page {Home, Peltier, RGB};
 //enum LCD_Page LCD_Current_Page = Home;
 volatile int LCD_Current_Page = 1;
-int rotaryEncoderCLK;
-int rotaryEncoderPrevCLK;
-volatile unsigned long last_time;  // for debouncing
+// rotary encoder variables
+static byte abOld;
+volatile int count;
+         int old_count;
+float rotaryEncoderTimerTime = 200;
+float rotaryEncoderTimer = 0;
 
 void setup() {
-  //Serial.begin(9600);
+  Serial.begin(9600);
   //dht.begin();
   //humidityServo.attach(SERVO_PIN);
   pinMode(ROTARYENCODER_CLK, INPUT);
   pinMode(ROTARYENCODER_DT, INPUT);
   //rotaryEncoderPrevCLK = digitalRead(ROTARYENCODER_CLK);
   button.setDebounceTime(50); 
-  attachInterrupt(digitalPinToInterrupt(ROTARYENCODER_CLK), RotaryEncoderLoop, RISING);
+  attachInterrupt(0, pinChangeISR, CHANGE);
+  attachInterrupt(1, pinChangeISR, CHANGE);
+  abOld = count = old_count = 0;
   lcd.begin(16,2);
 }
 
 void loop() {
   button.loop();
   LCDLoop();
-  delay(50);
+  RotaryEncoderUpdate();
 }
 
 void LCDLoop() {
@@ -86,26 +91,43 @@ void PrintRightSide(char text[], int column) {
   lcd.print(text);
 }
 
-void RotaryEncoderLoop() {
-  if ((millis() - last_time) < 200)  // debounce time is 50ms
-    return;
-
-    if (digitalRead(ROTARYENCODER_DT) == HIGH) {
-    // the encoder is rotating in counter-clockwise direction => decrease the counter
-    LCD_Current_Page++;
-  } else {
-    // the encoder is rotating in clockwise direction => increase the counter
-    LCD_Current_Page--;
+void RotaryEncoderUpdate() {
+  //if (rotaryEncoderTimer < millis()) {
+  int deltaInput = abs(count - old_count);
+  if (deltaInput >= 4) {
+    LCD_Current_Page = LCD_Current_Page + (count - old_count) / 4;
+    old_count = count;
+    Serial.print("result pagge value: ");
+    Serial.println(LCD_Current_Page);
   }
+//    if (count > old_count) {
+//    LCD_Current_Page++;
+//    old_count = count;
+//    }
+//    else if (count < old_count) {
+//      LCD_Current_Page--;
+//      old_count = count;
+//    }
+    if (LCD_Current_Page > 3){
+      LCD_Current_Page = 3;
+    }
+    if (LCD_Current_Page < 1) {
+      LCD_Current_Page = 1;
+    }
+   // rotaryEncoderTimer = millis() + rotaryEncoderTimerTime;
+  //}
+}
 
-  if (LCD_Current_Page > 3){
-    LCD_Current_Page = 3;
+void pinChangeISR() {
+  enum { upMask = 0x66, downMask = 0x99 };
+  byte abNew = (digitalRead(ROTARYENCODER_CLK) << 1) | digitalRead(ROTARYENCODER_DT);
+  byte criterion = abNew^abOld;
+  if (criterion==1 || criterion==2) {
+    if (upMask & (1 << (2*abOld + abNew/2)))
+      count++;
+    else count--;       // upMask = ~downMask
   }
-  if (LCD_Current_Page < 1) {
-    LCD_Current_Page = 1;
-  }
-
-  last_time = millis();
+  abOld = abNew;        // Save new state
 }
 
 // reads peltier current using ACS712 sensor
