@@ -43,6 +43,7 @@ volatile int count;
          int old_count;
 float rotaryEncoderTimerTime = 200;
 float rotaryEncoderTimer = 0;
+bool isPageSelected = false; // for when page is selected to prevent changing page
 
 void setup() {
   Serial.begin(9600);
@@ -61,22 +62,37 @@ void setup() {
 void loop() {
   button.loop();
   LCDLoop();
-  RotaryEncoderUpdate();
+  ChangeLCDPage(RotaryEncoderUpdate());
+  delay(50);
 }
 
 void LCDLoop() {
   switch (LCD_Current_Page) {
     case 1:
+      lcd.clear();
       lcd.setCursor(0,0);
       lcd.print("Home Page");
       PrintRightSide("Pg 1/3", 1);
       break;
     case 2:
+      lcd.clear();
       lcd.setCursor(0,0);
-      lcd.print("RGB Page");
+      lcd.print("R000 G000 B000");
       PrintRightSide("Pg 2/3", 1);
+      lcd.setCursor(0,0);
+      if (button.isPressed()) {
+        if (isPageSelected == false) {
+          isPageSelected = true;
+          lcd.blink();
+        }
+        else {
+          isPageSelected = false;
+          lcd.noBlink();
+        }
+      }
       break;
     case 3:
+      lcd.clear();
       lcd.setCursor(0,0);
       lcd.print("Peltier Page");
       PrintRightSide("Pg 3/3", 1);
@@ -86,36 +102,37 @@ void LCDLoop() {
   }
 }
 
-void PrintRightSide(char text[], int column) {
-  lcd.setCursor(16-strlen(text), column);
-  lcd.print(text);
-}
+void ChangeLCDPage(int increment) {
+  if (isPageSelected == false) {
+    LCD_Current_Page = increment + LCD_Current_Page;
 
-void RotaryEncoderUpdate() {
-  //if (rotaryEncoderTimer < millis()) {
-  int deltaInput = abs(count - old_count);
-  if (deltaInput >= 4) {
-    LCD_Current_Page = LCD_Current_Page + (count - old_count) / 4;
-    old_count = count;
-    Serial.print("result pagge value: ");
-    Serial.println(LCD_Current_Page);
-  }
-//    if (count > old_count) {
-//    LCD_Current_Page++;
-//    old_count = count;
-//    }
-//    else if (count < old_count) {
-//      LCD_Current_Page--;
-//      old_count = count;
-//    }
     if (LCD_Current_Page > 3){
       LCD_Current_Page = 3;
     }
     if (LCD_Current_Page < 1) {
       LCD_Current_Page = 1;
     }
-   // rotaryEncoderTimer = millis() + rotaryEncoderTimerTime;
-  //}
+  }
+}
+
+void PrintRightSide(char text[], int column) {
+  lcd.setCursor(16-strlen(text), column);
+  lcd.print(text);
+}
+
+int RotaryEncoderUpdate() {
+  //if (rotaryEncoderTimer < millis()) {
+  int deltaInput = abs(count - old_count);
+  if (deltaInput >= 4) {
+    Serial.println(count);
+    Serial.println(old_count);
+    int delta = (count - old_count) / 4;
+    Serial.print("delta: ");
+    Serial.println(delta);
+    old_count = count;
+    return delta;
+  }
+  return 0;
 }
 
 void pinChangeISR() {
