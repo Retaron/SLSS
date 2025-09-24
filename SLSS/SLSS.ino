@@ -44,6 +44,7 @@ volatile int count;
 float rotaryEncoderTimerTime = 200;
 float rotaryEncoderTimer = 0;
 bool isPageSelected = false; // for when page is selected to prevent changing page
+int RGB[3];
 
 void setup() {
   Serial.begin(9600);
@@ -57,6 +58,7 @@ void setup() {
   attachInterrupt(1, pinChangeISR, CHANGE);
   abOld = count = old_count = 0;
   lcd.begin(16,2);
+  RGB = {0,0,0};
 }
 
 void loop() {
