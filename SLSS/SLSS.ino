@@ -45,6 +45,8 @@ float rotaryEncoderTimerTime = 200;
 float rotaryEncoderTimer = 0;
 bool isPageSelected = false; // for when page is selected to prevent changing page
 int RGB[3];
+int RGBState; //these two variables are for calculating position of RGB values on the screen and editing them
+int RGBThreeIntPosition;
 
 void setup() {
   Serial.begin(9600);
@@ -82,16 +84,7 @@ void LCDLoop() {
       lcd.print("R000 G000 B000");
       PrintRightSide("Pg 2/3", 1);
       lcd.setCursor(0,0);
-      if (button.isPressed()) {
-        if (isPageSelected == false) {
-          isPageSelected = true;
-          lcd.blink();
-        }
-        else {
-          isPageSelected = false;
-          lcd.noBlink();
-        }
-      }
+      EditRGBValues(); // allows user to edit RGB values if button is pressed
       break;
     case 3:
       lcd.clear();
@@ -101,6 +94,41 @@ void LCDLoop() {
       break;
     default:
       break;
+  }
+}
+
+//int RGBState; //these two variables are for calculating position of RGB values on the screen and editing them
+//int RGBThreeIntPosition;
+
+void EditRGBValues() {
+  if (isPageSelected == true) {
+    if (button.isPressed()) {
+      isPageSelected = false;
+      lcd.noBlink();
+    }
+    int LCDPosition = 1 + RGBState * 5 + RGBThreeIntPosition;
+    lcd.setCursor(LCDPosition, 0);
+    RGBThreeIntPosition = RGBThreeIntPosition + increment;
+    if (RGBThreeIntPosition > 2) {
+      RGBThreeIntPosition = 0;
+      RGBState++;
+    }
+    else if (RGBThreeIntPosition < 0) {
+      RGBThreeIntPosition = 2;
+      RGBState--;
+    }
+    if (RGBState > 2) {
+      RGBState = 2;
+    }
+    else if (RGBState < 0) {
+      RGBState = 0;
+    }
+  }
+  else {
+    if (button.isPressed()) {
+      isPageSelected = true;
+      lcd.blink();
+    }
   }
 }
 
