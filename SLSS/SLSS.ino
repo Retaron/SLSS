@@ -47,6 +47,8 @@ bool isPageSelected = false; // for when page is selected to prevent changing pa
 int RGB[3];
 int RGBState; //these two variables are for calculating position of RGB values on the screen and editing them
 int RGBThreeIntPosition;
+bool rbgValuesSelected = false;
+bool rgbIndividualNumberSel = false;
 
 void setup() {
   Serial.begin(9600);
@@ -81,16 +83,16 @@ void LCDLoop() {
     case 2:
       lcd.clear();
       lcd.setCursor(0,0);
-      lcd.print("R000 G000 B000");
+      lcd.print("Peltier Page");
       PrintRightSide("Pg 2/3", 1);
-      lcd.setCursor(0,0);
-      EditRGBValues(); // allows user to edit RGB values if button is pressed
       break;
     case 3:
       lcd.clear();
       lcd.setCursor(0,0);
-      lcd.print("Peltier Page");
+      lcd.print("R000 G000 B000");
       PrintRightSide("Pg 3/3", 1);
+      lcd.setCursor(0,0);
+      EditRGBValues(); // allows user to edit RGB values if button is pressed
       break;
     default:
       break;
@@ -99,6 +101,8 @@ void LCDLoop() {
 
 //int RGBState; //these two variables are for calculating position of RGB values on the screen and editing them
 //int RGBThreeIntPosition;
+//bool rbgValuesSelected = false;
+//bool rgbIndividualNumberSel = false;
 
 void EditRGBValues() {
   if (isPageSelected == true) {
@@ -129,6 +133,28 @@ void EditRGBValues() {
       isPageSelected = true;
       lcd.blink();
     }
+  }
+
+  isPageSelected = true;
+  if (RGBState == 0 && RGBThreeIntPosition == 0 && rbgValuesSelected == false) {
+    if (increment < 0) {
+      isPageSelected = false;
+      LCD_Current_Page = increment + LCD_Current_Page;
+      lcd.noBlink();
+    }
+    else if (increment > 0) {
+      rbgValuesSelected = true;
+      lcd.blink();
+    }
+  }
+  else if (RGBState == 0 && RGBThreeIntPosition == 0 && rbgValuesSelected == true) {
+    if (increment > 0) {
+      rbgValuesSelected = false;
+    }
+  }
+
+  if (rbgValuesSelected == true) {
+    
   }
 }
 
