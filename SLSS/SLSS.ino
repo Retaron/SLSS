@@ -62,17 +62,18 @@ void setup() {
   attachInterrupt(1, pinChangeISR, CHANGE);
   abOld = count = old_count = 0;
   lcd.begin(16,2);
-  RGB = {0,0,0};
+  int RGB[3] = {0,0,0};
 }
 
 void loop() {
   button.loop();
-  LCDLoop();
-  ChangeLCDPage(RotaryEncoderUpdate());
+  int rotaryEncoderIncrement = RotaryEncoderUpdate();
+  LCDLoop(rotaryEncoderIncrement);
+  ChangeLCDPage(rotaryEncoderIncrement);
   delay(50);
 }
 
-void LCDLoop() {
+void LCDLoop(int rotaryEncoderIncrement) {
   switch (LCD_Current_Page) {
     case 1:
       lcd.clear();
@@ -89,14 +90,24 @@ void LCDLoop() {
     case 3:
       lcd.clear();
       lcd.setCursor(0,0);
-      lcd.print("R000 G000 B000");
+      char str[4];
+      lcd.print("R");
+      lcd.setCursor(1,0);
+      sprintf(str, "%d%", RBGNumber);
+      lcd.print(padRGBNumber(RGB[0]));
       PrintRightSide("Pg 3/3", 1);
       lcd.setCursor(0,0);
-      EditRGBValues(); // allows user to edit RGB values if button is pressed
+      EditRGBValues(rotaryEncoderIncrement); // allows user to edit RGB values if button is pressed
       break;
     default:
       break;
   }
+}
+
+char* padRGBNumber(int RBGNumber) {
+  char str[4];
+  sprintf(str, "%d%", RBGNumber);
+  return str;
 }
 
 //int RGBState; //these two variables are for calculating position of RGB values on the screen and editing them
@@ -104,38 +115,38 @@ void LCDLoop() {
 //bool rbgValuesSelected = false;
 //bool rgbIndividualNumberSel = false;
 
-void EditRGBValues() {
-  if (isPageSelected == true) {
-    if (button.isPressed()) {
-      isPageSelected = false;
-      lcd.noBlink();
-    }
-    int LCDPosition = 1 + RGBState * 5 + RGBThreeIntPosition;
-    lcd.setCursor(LCDPosition, 0);
-    RGBThreeIntPosition = RGBThreeIntPosition + increment;
-    if (RGBThreeIntPosition > 2) {
-      RGBThreeIntPosition = 0;
-      RGBState++;
-    }
-    else if (RGBThreeIntPosition < 0) {
-      RGBThreeIntPosition = 2;
-      RGBState--;
-    }
-    if (RGBState > 2) {
-      RGBState = 2;
-    }
-    else if (RGBState < 0) {
-      RGBState = 0;
-    }
-  }
-  else {
-    if (button.isPressed()) {
-      isPageSelected = true;
-      lcd.blink();
-    }
-  }
+void EditRGBValues(int increment) {
+//  if (isPageSelected == true) {
+//    if (button.isPressed()) {
+//      isPageSelected = false;
+//      lcd.noBlink();
+//    }
+//    int LCDPosition = 1 + RGBState * 5 + RGBThreeIntPosition;
+//    lcd.setCursor(LCDPosition, 0);
+//    RGBThreeIntPosition = RGBThreeIntPosition + increment;
+//    if (RGBThreeIntPosition > 2) {
+//      RGBThreeIntPosition = 0;
+//      RGBState++;
+//    }
+//    else if (RGBThreeIntPosition < 0) {
+//      RGBThreeIntPosition = 2;
+//      RGBState--;
+//    }
+//    if (RGBState > 2) {
+//      RGBState = 2;
+//    }
+//    else if (RGBState < 0) {
+//      RGBState = 0;
+//    }
+//  }
+//  else {
+//    if (button.isPressed()) {
+//      isPageSelected = true;
+//      lcd.blink();
+//    }
+//  }
 
-  isPageSelected = true;
+  //isPageSelected = true;
   if (RGBState == 0 && RGBThreeIntPosition == 0 && rbgValuesSelected == false) {
     if (increment < 0) {
       isPageSelected = false;
@@ -143,18 +154,49 @@ void EditRGBValues() {
       lcd.noBlink();
     }
     else if (increment > 0) {
+      isPageSelected = !isPageSelected;
       rbgValuesSelected = true;
       lcd.blink();
     }
   }
   else if (RGBState == 0 && RGBThreeIntPosition == 0 && rbgValuesSelected == true) {
-    if (increment > 0) {
+    if (increment < 0) {
+      isPageSelected = !isPageSelected;
       rbgValuesSelected = false;
+      lcd.noBlink();
     }
   }
-
+  
   if (rbgValuesSelected == true) {
-    
+    if (button.isPressed()) {
+      rgbIndividualNumberSel = !rgbIndividualNumberSel;
+    }
+    if (rgbIndividualNumberSel == true) {
+      int changedRGBValue = increment * RGBThreeIntPosition;
+      if (changedRGBValue < 255 && changedRGBValue > 0) {
+        RGB[RGBState] = RGB[RGBState] + changedRGBValue;
+      }
+    }
+    else {
+      int LCDPosition = 1 + RGBState * 5 + RGBThreeIntPosition;
+      lcd.setCursor(LCDPosition, 0);
+      RGBThreeIntPosition = RGBThreeIntPosition + increment;
+      // boundary checks
+      if (RGBThreeIntPosition > 2) {
+        RGBThreeIntPosition = 0;
+        RGBState++;
+      }
+      else if (RGBThreeIntPosition < 0) {
+        RGBThreeIntPosition = 2;
+        RGBState--;
+      }
+      if (RGBState > 2) {
+        RGBState = 2;
+      }
+      else if (RGBState < 0) {
+        RGBState = 0;
+      }
+    }
   }
 }
 
