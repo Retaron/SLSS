@@ -56,6 +56,9 @@ void setup() {
   //humidityServo.attach(SERVO_PIN);
   pinMode(ROTARYENCODER_CLK, INPUT);
   pinMode(ROTARYENCODER_DT, INPUT);
+  pinMode(LED_R, OUTPUT);
+  pinMode(LED_G, OUTPUT);
+  pinMode(LED_B, OUTPUT);
   //rotaryEncoderPrevCLK = digitalRead(ROTARYENCODER_CLK);
   button.setDebounceTime(50); 
   attachInterrupt(0, pinChangeISR, CHANGE);
@@ -70,6 +73,7 @@ void loop() {
   int rotaryEncoderIncrement = RotaryEncoderUpdate();
   LCDLoop(rotaryEncoderIncrement);
   ChangeLCDPage(rotaryEncoderIncrement);
+  updateRGBLED();
   delay(50);
 }
 
@@ -109,6 +113,12 @@ void LCDLoop(int rotaryEncoderIncrement) {
     default:
       break;
   }
+}
+
+void updateRGBLED() {
+  analogWrite(LED_R, RGB[0]);
+  analogWrite(LED_G, RGB[1]);
+  analogWrite(LED_B, RGB[2]);
 }
 
 char* padRGBNumber(char prefix, int RBGNumber) {
