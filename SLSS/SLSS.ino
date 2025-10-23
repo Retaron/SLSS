@@ -49,6 +49,7 @@ int RGBState; //these two variables are for calculating position of RGB values o
 int RGBThreeIntPosition;
 bool rbgValuesSelected = false;
 bool rgbIndividualNumberSel = false;
+char currentSensorString[10];
 
 void setup() {
   Serial.begin(9600);
@@ -66,6 +67,7 @@ void setup() {
   abOld = count = old_count = 0;
   lcd.begin(16,2);
   int RGB[3] = {0,0,0};
+  currentSensorString[10] = {0};
 }
 
 void loop() {
@@ -89,6 +91,12 @@ void LCDLoop(int rotaryEncoderIncrement) {
       lcd.clear();
       lcd.setCursor(0,0);
       lcd.print("Peltier Page");
+      lcd.setCursor(0,1);
+      float myFloat = 1.21;
+      char floatString[5] = {0};
+      dtostrf(myFloat, 3, 2, floatString);
+      snprintf(currentSensorString, 10, "%s%s%c", "5V ", floatString, 'A');
+      lcd.print(currentSensorString);
       PrintRightSide("Pg 2/3", 1);
       break;
     case 3:
@@ -136,63 +144,13 @@ char* padRGBNumber(char prefix, int RBGNumber) {
 //bool rgbIndividualNumberSel = false;
 
 void EditRGBValues(int increment) {
-//  if (isPageSelected == true) {
-//    if (button.isPressed()) {
-//      isPageSelected = false;
-//      lcd.noBlink();
-//    }
-//    int LCDPosition = 1 + RGBState * 5 + RGBThreeIntPosition;
-//    lcd.setCursor(LCDPosition, 0);
-//    RGBThreeIntPosition = RGBThreeIntPosition + increment;
-//    if (RGBThreeIntPosition > 2) {
-//      RGBThreeIntPosition = 0;
-//      RGBState++;
-//    }
-//    else if (RGBThreeIntPosition < 0) {
-//      RGBThreeIntPosition = 2;
-//      RGBState--;
-//    }
-//    if (RGBState > 2) {
-//      RGBState = 2;
-//    }
-//    else if (RGBState < 0) {
-//      RGBState = 0;
-//    }
-//  }
-//  else {
-//    if (button.isPressed()) {
-//      isPageSelected = true;
-//      lcd.blink();
-//    }
-//  }
-
-  //isPageSelected = true;
-//  if (RGBState == 0 && RGBThreeIntPosition == 0 && rbgValuesSelected == false) {
-//    if (increment < 0) {
-//      isPageSelected = false;
-//      LCD_Current_Page = increment + LCD_Current_Page;
-//      lcd.noBlink();
-//    }
-//    else if (increment > 0) {
-//      isPageSelected = !isPageSelected;
-//      rbgValuesSelected = true;
-//      lcd.blink();
-//    }
-//  }
   if (RGBState == 0 && RGBThreeIntPosition == 0 && rgbIndividualNumberSel == false) {
     isPageSelected = false;
   }
   else {
     isPageSelected = true;
   }
-//  else if (RGBState == 0 && RGBThreeIntPosition == 0 && rbgValuesSelected == true) {
-//    if (increment < 0) {
-//      isPageSelected = !isPageSelected;
-//      rbgValuesSelected = false;
-//      lcd.noBlink();
-//    }
-//  }
-
+  
   int LCDPosition = 1 + RGBState * 5 + RGBThreeIntPosition;
   lcd.setCursor(LCDPosition, 0);
   //if (rbgValuesSelected == true) {
@@ -271,11 +229,11 @@ int RotaryEncoderUpdate() {
   //if (rotaryEncoderTimer < millis()) {
   int deltaInput = abs(count - old_count);
   if (deltaInput >= 4) {
-    Serial.println(count);
-    Serial.println(old_count);
+    //Serial.println(count);
+    //Serial.println(old_count);
     int delta = (count - old_count) / 4;
-    Serial.print("delta: ");
-    Serial.println(delta);
+    //Serial.print("delta: ");
+    //Serial.println(delta);
     old_count = count;
     return delta;
   }
@@ -295,14 +253,24 @@ void pinChangeISR() {
 }
 
 // reads peltier current using ACS712 sensor
-float  ReadCurrentSensor(int nSamples) {
+int nSamples = 1024;
+int currentSensorCount = 0;
+float currentReadTime = 1;
+float currentReadTimer;
+float currentSensorCurrent;
+void  ReadCurrentSensor() {
   float val = 0;
-  for (int i = 0; i < nSamples; i++) {
+  if (currentReadTimer + currentReadTime < millis()){
     val += analogRead(CURRENT_SENSOR_PIN);
-    delay(1);
+    currentSensorCount++;
+    currentReadTimer = millis();
   }
-  val = val / adcRes / nSamples;
-  return (vcc / 2 - vcc * val) / currentSens;
+  if (currentSensorCount >= nSamples) {
+    val = val / adcRes / nSamples;
+    currentSensorCurrent = (vcc / 2 - vcc * val) / currentSens;
+    snprintf(currentSensorString, 10, "%s%.2f%%c", "I: ", currentSensorCurrent, 'A');
+    currentSensorCount = 0;
+  }
 }
 
 void ReadDHTSensor() {
