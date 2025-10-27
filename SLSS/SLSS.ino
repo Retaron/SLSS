@@ -7,6 +7,7 @@
 #define ROTARYENCODER_CLK 2
 #define ROTARYENCODER_DT 3
 #define ROTARYENCODER_SW 4
+#define TOGGLESWITCH 13
 #define SERVO_PIN 5
 #define LED_R 6
 #define LED_G 7
@@ -29,6 +30,7 @@ Servo humidityServo;
 DHT dht(HUMIDITY_PIN, HUMIDITY_SENSOR_TYPE);
 LiquidCrystal lcd(LCD_RS, LCD_E, LCD_D4, LCD_D5, LCD_D6, LCD_D7);
 ezButton button(ROTARYENCODER_SW);
+ezButton toggleSwitch(TOGGLESWITCH);
 int servoPos;
 int servoDelay = 10;
 const float currentSens = 0.185;  // 5A
@@ -64,6 +66,7 @@ void setup() {
   pinMode(LED_B, OUTPUT);
   //rotaryEncoderPrevCLK = digitalRead(ROTARYENCODER_CLK);
   button.setDebounceTime(50); 
+  toggleSwitch.setDebounceTime(50);
   attachInterrupt(0, pinChangeISR, CHANGE);
   attachInterrupt(1, pinChangeISR, CHANGE);
   abOld = count = old_count = 0;
@@ -73,11 +76,14 @@ void setup() {
 }
 
 void loop() {
-  button.loop();
-  int rotaryEncoderIncrement = RotaryEncoderUpdate();
-  LCDLoop(rotaryEncoderIncrement);
-  ChangeLCDPage(rotaryEncoderIncrement);
-  updateRGBLED();
+  toggleSwitch.loop();
+  if (toggleSwitch.getState() == LOW) { // switch is on, if it isnt then disable most logic
+    button.loop();
+    int rotaryEncoderIncrement = RotaryEncoderUpdate();
+    LCDLoop(rotaryEncoderIncrement);
+    ChangeLCDPage(rotaryEncoderIncrement);
+    updateRGBLED();
+  }
   delay(50);
 }
 
