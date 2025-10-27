@@ -43,6 +43,7 @@ volatile int count;
          int old_count;
 float rotaryEncoderTimerTime = 200;
 float rotaryEncoderTimer = 0;
+float myFloat;
 bool isPageSelected = false; // for when page is selected to prevent changing page
 int RGB[3];
 int RGBState; //these two variables are for calculating position of RGB values on the screen and editing them
@@ -50,6 +51,7 @@ int RGBThreeIntPosition;
 bool rbgValuesSelected = false;
 bool rgbIndividualNumberSel = false;
 char currentSensorString[10];
+char floatString[5] = {0};
 
 void setup() {
   Serial.begin(9600);
@@ -92,8 +94,8 @@ void LCDLoop(int rotaryEncoderIncrement) {
       lcd.setCursor(0,0);
       lcd.print("Peltier Page");
       lcd.setCursor(0,1);
-      float myFloat = 1.21;
-      char floatString[5] = {0};
+      myFloat = 1.21;
+      floatString[5] = {0};
       dtostrf(myFloat, 3, 2, floatString);
       snprintf(currentSensorString, 10, "%s%s%c", "5V ", floatString, 'A');
       lcd.print(currentSensorString);
@@ -102,6 +104,7 @@ void LCDLoop(int rotaryEncoderIncrement) {
     case 3:
       lcd.blink();
       lcd.clear();
+      lcd.print("RGB");
       lcd.setCursor(0,0);
       char* formattedNumber = padRGBNumber('R', RGB[0]);
       lcd.print(formattedNumber);
