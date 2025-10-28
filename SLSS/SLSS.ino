@@ -46,6 +46,8 @@ volatile int count;
 float rotaryEncoderTimerTime = 200;
 float rotaryEncoderTimer = 0;
 float myFloat;
+float humidity;
+float tempC;
 bool isPageSelected = false; // for when page is selected to prevent changing page
 int RGB[3];
 int RGBState; //these two variables are for calculating position of RGB values on the screen and editing them
@@ -53,11 +55,12 @@ int RGBThreeIntPosition;
 bool rbgValuesSelected = false;
 bool rgbIndividualNumberSel = false;
 char currentSensorString[10];
+char humiditySensorString[10];
 char floatString[5] = {0};
 
 void setup() {
   Serial.begin(9600);
-  //dht.begin();
+  dht.begin();
   //humidityServo.attach(SERVO_PIN);
   pinMode(ROTARYENCODER_CLK, INPUT);
   pinMode(ROTARYENCODER_DT, INPUT);
@@ -77,13 +80,13 @@ void setup() {
 
 void loop() {
   toggleSwitch.loop();
-  if (toggleSwitch.getState() == LOW) { // switch is on, if it isnt then disable most logic
+  //if (toggleSwitch.getState() == LOW) { // switch is on, if it isnt then disable most logic
     button.loop();
     int rotaryEncoderIncrement = RotaryEncoderUpdate();
     LCDLoop(rotaryEncoderIncrement);
     ChangeLCDPage(rotaryEncoderIncrement);
     updateRGBLED();
-  }
+  //}
   delay(50);
 }
 
@@ -93,7 +96,11 @@ void LCDLoop(int rotaryEncoderIncrement) {
       lcd.clear();
       lcd.setCursor(0,0);
       lcd.print("Home Page");
+      ReadDHTSensor();
+      lcd.setCursor(0,1);
+      lcd.print(humiditySensorString);
       PrintRightSide("Pg 1/3", 1);
+      delay(2000);
       break;
     case 2:
       lcd.clear();
@@ -283,15 +290,12 @@ void  ReadCurrentSensor() {
 }
 
 void ReadDHTSensor() {
-  float humidity = dht.readHumidity();
-  float tempC = dht.readTemperature();
-  Serial.print("Humidity: ");
-  Serial.print(humidity);
-  Serial.print("%");
-  Serial.print("  |  "); 
-  Serial.print("Temperature: ");
-  Serial.print(tempC);
-  Serial.println("°C ~ ");
+  int chk = dht.read(HUMIDITY_PIN);
+  humidity = dht.readHumidity();
+  //tempC = dht.readTemperature();
+  Serial.print("humidity: ");
+  Serial.println(humidity);
+  snprintf(humiditySensorString, 10, "%f%s%f%c", humidity, "% ", tempC, 'C');
 }
 
 void SprayBottle() {
