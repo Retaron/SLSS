@@ -100,7 +100,6 @@ void LCDLoop(int rotaryEncoderIncrement) {
       lcd.setCursor(0,1);
       lcd.print(humiditySensorString);
       PrintRightSide("Pg 1/3", 1);
-      delay(2000);
       break;
     case 2:
       lcd.clear();
@@ -290,11 +289,10 @@ void  ReadCurrentSensor() {
 }
 
 void ReadDHTSensor() {
-  int chk = dht.read(HUMIDITY_PIN);
   humidity = dht.readHumidity();
   //tempC = dht.readTemperature();
-  Serial.print("humidity: ");
-  Serial.println(humidity);
+  //Serial.print("humidity: ");
+  //Serial.println(humidity);
   snprintf(humiditySensorString, 10, "%f%s%f%c", humidity, "% ", tempC, 'C');
 }
 
