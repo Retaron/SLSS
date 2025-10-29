@@ -1,5 +1,5 @@
 #include <Servo.h>
-#include "DHT.h"
+#include <SimpleDHT.h>
 #include <LiquidCrystal.h>
 #include <string.h>
 #include <ezButton.h>
@@ -13,8 +13,7 @@
 #define LED_G 7
 #define LED_B 8
 #define CURRENT_SENSOR_PIN A0
-#define HUMIDITY_PIN 9
-#define HUMIDITY_SENSOR_TYPE DHT11
+#define DHT11_PIN 18 // its pin 18 because i dont think it works on other ones, it would on pin 2 but its occupied
 #define FAN_ENABLE_PWM 10
 #define PELTIER_PWM_BURNING 11
 #define PELTIER_PWM_FREEZING 12
@@ -27,7 +26,7 @@
 #define LCD_D7 22
 
 Servo humidityServo;
-DHT dht(HUMIDITY_PIN, HUMIDITY_SENSOR_TYPE);
+SimpleDHT11 dht11(DHT11_PIN);
 LiquidCrystal lcd(LCD_RS, LCD_E, LCD_D4, LCD_D5, LCD_D6, LCD_D7);
 ezButton button(ROTARYENCODER_SW);
 ezButton toggleSwitch(TOGGLESWITCH);
@@ -46,8 +45,8 @@ volatile int count;
 float rotaryEncoderTimerTime = 200;
 float rotaryEncoderTimer = 0;
 float myFloat;
-float humidity;
-float tempC;
+byte humidity;
+byte tempC;
 bool isPageSelected = false; // for when page is selected to prevent changing page
 int RGB[3];
 int RGBState; //these two variables are for calculating position of RGB values on the screen and editing them
@@ -60,7 +59,6 @@ char floatString[5] = {0};
 
 void setup() {
   Serial.begin(9600);
-  dht.begin();
   //humidityServo.attach(SERVO_PIN);
   pinMode(ROTARYENCODER_CLK, INPUT);
   pinMode(ROTARYENCODER_DT, INPUT);
@@ -250,7 +248,7 @@ int RotaryEncoderUpdate() {
     //Serial.print("delta: ");
     //Serial.println(delta);
     old_count = count;
-    return delta;
+    return delta * -1;
   }
   return 0;
 }
@@ -288,12 +286,15 @@ void  ReadCurrentSensor() {
   }
 }
 
+//int humidity;
+//float tempC;
 void ReadDHTSensor() {
-  humidity = dht.readHumidity();
+  //humidity = dht.readHumidity();
   //tempC = dht.readTemperature();
   //Serial.print("humidity: ");
   //Serial.println(humidity);
-  snprintf(humiditySensorString, 10, "%f%s%f%c", humidity, "% ", tempC, 'C');
+  dht11.read(&tempC, &humidity, NULL);
+  snprintf(humiditySensorString, 10, "%i%s%i%c", humidity, "% ", tempC, 'C');
 }
 
 void SprayBottle() {
