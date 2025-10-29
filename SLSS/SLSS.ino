@@ -91,6 +91,7 @@ void loop() {
 void LCDLoop(int rotaryEncoderIncrement) {
   switch (LCD_Current_Page) {
     case 1:
+      lcd.noBlink();
       lcd.clear();
       lcd.setCursor(0,0);
       lcd.print("Home Page");
