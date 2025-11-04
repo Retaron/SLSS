@@ -7,7 +7,7 @@
 #define ROTARYENCODER_CLK 2
 #define ROTARYENCODER_DT 3
 #define ROTARYENCODER_SW 4
-#define TOGGLESWITCH 13
+#define TOGGLESWITCH 13 // front panel on/off image
 #define SERVO_PIN 5
 #define LED_R 6
 #define LED_G 7
