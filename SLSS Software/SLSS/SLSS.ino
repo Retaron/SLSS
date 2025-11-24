@@ -246,7 +246,7 @@ int RotaryEncoderUpdate() {
     //Serial.println(count);
     //Serial.println(old_count);
     int delta = (count - old_count) / 4;
-    //Serial.print("delta: ");
+    Serial.print("delta: ");
     //Serial.println(delta);
     old_count = count;
     return delta * -1;
