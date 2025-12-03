@@ -473,6 +473,15 @@
         "via_diameter": 0.6,
         "via_drill": 0.3,
         "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "line_style": 0,
+        "name": "GND",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 0,
+        "schematic_color": "rgb(4, 0, 0)",
+        "wire_width": 6
       }
     ],
     "meta": {
@@ -490,7 +499,7 @@
       "plot": "",
       "pos_files": "",
       "specctra_dsn": "",
-      "step": "",
+      "step": "SLSS LightRail.step",
       "svg": "",
       "vrml": ""
     },
