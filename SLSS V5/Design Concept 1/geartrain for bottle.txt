@@ -1,0 +1,15 @@
+geartrain for bottle:
+first gear M0.7 N15
+second gear M0.7 N20 affixed to M0.7 N10
+rack gear M0.7 21.5MM length
+
+first set gear ratio: 1.33333
+second set gear ratio: 0.5
+
+first gear displacement at 160 degrees: 
+effective dia: 10.5mm
+perimeter: 32.9867228627mm
+160 deg disp: 14.6607657168mm
+
+2nd gear 160 deg disp: 19.5476387532
+3rd gear 160 deg disp: 9.7738193766
