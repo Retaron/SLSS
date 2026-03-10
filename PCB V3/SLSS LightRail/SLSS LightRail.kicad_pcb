@@ -74,7 +74,7 @@
 			(mirror no)
 			(drillshape 0)
 			(scaleselection 1)
-			(outputdirectory "./")
+			(outputdirectory "C:/Users/edwar/Documents/SLSS/PCB V3/SLSS LightRail/repackage/")
 		)
 	)
 	(net 0 "")
@@ -4254,7 +4254,7 @@
 		)
 		(polygon
 			(pts
-				(xy 150 49.5) (xy 210.5 50) (xy 210.5 104.5) (xy 149.5 104.5)
+				(xy 168 49.5) (xy 208.5 50) (xy 208.5 103) (xy 167.5 103)
 			)
 		)
 		(filled_polygon
