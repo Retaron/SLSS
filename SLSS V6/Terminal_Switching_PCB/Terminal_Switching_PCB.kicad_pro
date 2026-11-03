@@ -530,7 +530,7 @@
       "netlist": "",
       "plot": "",
       "specctra_dsn": "",
-      "step": "Terminal_Switching_PCBv1.2.step",
+      "step": "Terminal_Switching_PCBv1.3.step",
       "vrml": ""
     },
     "page_layout_descr_file": ""
@@ -652,6 +652,14 @@
     "legacy_lib_list": [],
     "meta": {
       "version": 1
+    },
+    "ngspice": {
+      "fix_include_paths": true,
+      "meta": {
+        "version": 0
+      },
+      "model_mode": 4,
+      "workbook_filename": ""
     },
     "page_layout_descr_file": "",
     "plot_directory": "",
