@@ -528,7 +528,7 @@
     "last_paths": {
       "idf": "",
       "netlist": "",
-      "plot": "",
+      "plot": "Terminal switching pcb files/",
       "specctra_dsn": "",
       "step": "Terminal_Switching_PCBv1.3.step",
       "vrml": ""
